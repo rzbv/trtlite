@@ -1339,6 +1339,7 @@ def load_charset(charsetpath):
     chars = ['[PAD]', '[EOS]'] + chars
     return chars
 
+
 def load_np(src_dir, name):
     bin_name = src_dir + '/inputs/bin/' + name
     shape_name = src_dir + '/inputs/shape/' + name
@@ -1351,6 +1352,40 @@ def load_np(src_dir, name):
     ims_shape = np.fromfile(imshape_name, dtype=np.int32).reshape(s)
 
     return ims, ims_shape
+
+
+def perf(model):
+    import time
+
+    from tqdm import tqdm
+    
+    data_dir = './output/datasets/input_trt'
+    names = []
+    with open(os.path.join(data_dir, 'img_list.txt'), 'r') as f:
+        for line in f.readlines():
+            line = line.strip()
+            names.append(line)
+
+    tic = time.time()
+    for name in tqdm(names):
+        bin_name = data_dir + '/inputs/bin/' + name
+        shape_name = data_dir + '/inputs/shape/' + name
+        s = np.fromfile(shape_name, dtype=np.int32)
+        ims = np.fromfile(bin_name,dtype=np.float32).astype(np.float32).reshape(s)
+        imgs = np.transpose(ims, [0, 3, 1, 2])
+
+        imshape_name = data_dir + '/inputs_shape/bin/' + name
+        shape_name = data_dir + '/inputs_shape/shape/' + name
+        s = np.fromfile(shape_name, dtype=np.int32)
+        ims_shape = np.fromfile(imshape_name,dtype=np.int32).reshape(s)
+        shapes = ims_shape.astype(np.float32)
+
+        with torch.no_grad():
+            imgs = torch.from_numpy(imgs)
+            shapes = torch.from_numpy(shapes)
+            model(imgs, shapes)
+
+    print('elapse', time.time() - tic)
 
 
 def test_infer():
@@ -1395,6 +1430,9 @@ def test_infer():
     model = VisionTransformer(is_resnet_vd, backbone, encoder, decoding)
     model.load_state_dict(torch.load(pt_path), strict=False)
     model.eval()
+
+    # test perf
+
 
 
 if __name__ == '__main__':

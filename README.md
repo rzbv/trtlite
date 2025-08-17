@@ -33,19 +33,19 @@ poetry install
 
 ## Usage and Example
 
-- **Simple**: [`./example/simple`](./examples/simple)  
+- **Simple**: [`./samples/simple`](./samples/simple)  
   A simple example to show the usage.
 
-- **ResNet**: [`./examples/resnet`](./examples/resnet)  
+- **ResNet**: [`./samples/resnet`](./samples/resnet)  
   High-performance ResNet inference example using TRTLite.
 
-- **YOLOv11**: [`./examples/yolo11`](./examples/yolo11)  
+- **YOLOv11**: [`./samples/yolo11`](./samples/yolo11)  
   Real-time object detection example demonstrating TRTLite efficiency on YOLOv11.
 
-- **VisionTransformer**: [`./examples/vision_transformer`](./examples/vision_transformer)  
+- **VisionTransformer**: [`./samples/vision_transformer`](./samples/vision_transformer)  
   A high effcient vision seq2seq implementation with custom encoder and decorder plugins.
 
-- **Mask RCNN**: [`./examples/maskrcnn`](./examples/maskrcnn)  
+- **Mask RCNN**: [`./samples/maskrcnn`](./samples/maskrcnn)  
   Instance segmentation example leveraging custom plugins and TensorRT optimizations.
 
 

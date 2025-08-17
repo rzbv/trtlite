@@ -604,7 +604,7 @@ class VisionTransformer(nn.Module):
 
 def test():
     config = {
-        'engine_file': './output/models/vis_transformer_fp32.plan',
+        'engine_file': './output/models/vis_transformer_fp16.plan',
         'weight_file': './output/models/model_trt.pkl',
         'inputs': [('image', (-1, 1, 32, -1)), ('image_shape', (-1, 2))],
         'input_profiles': [
@@ -612,7 +612,7 @@ def test():
             ((1, 2), (64, 2), (128, 2))
         ],
         'output_names': ['output_ids', 'parent_ids', 'seq_len'],
-        'precision': 'fp32',
+        'precision': 'fp16',
         'max_workspace_size': 8 * (1 << 30)
     }
 
@@ -622,9 +622,8 @@ def test():
     encoder = TransformerEncoder(3, 512, 8, 1024)
     decoder = TransformerDecoder(3, 8, 64, vocab_size, 0, 1, 5)
     model = VisionTransformer(True, project_layer, encoder, decoder)
-    # model.build_engine(config)
-    # return
-
+    model.build_engine(config)
+    
     session = trtlite.InferenceSession(config['engine_file'])
     import pickle
     with open('./output/models/preprocess_output.pkl', 'rb') as f:
@@ -633,6 +632,41 @@ def test():
     images = np.transpose(image, [0, 3, 1, 2])
     output = session.run({'image': images, 'image_shape': images_shape})
     print('output', output)
+
+
+def perf(sess):
+    import os
+    import time
+
+    from tqdm import tqdm
+    data_dir = './output/datasets/input_trt'
+    names = []
+    with open(os.path.join(data_dir, 'img_list.txt'), 'r') as f:
+        for line in f.readlines():
+            line = line.strip()
+            names.append(line)
+
+    tic = time.time()
+    N = 0
+    for name in tqdm(names):
+        bin_name = data_dir + '/inputs/bin/' + name
+        shape_name = data_dir + '/inputs/shape/' + name
+        s = np.fromfile(shape_name, dtype=np.int32)
+        ims = np.fromfile(bin_name,dtype=np.float32).astype(np.float32).reshape(s)
+        imgs = np.transpose(ims, [0, 3, 1, 2])
+        N += imgs.shape[0]
+
+        imshape_name = data_dir + '/inputs_shape/bin/' + name
+        shape_name = data_dir + '/inputs_shape/shape/' + name
+        s = np.fromfile(shape_name, dtype=np.int32)
+        ims_shape = np.fromfile(imshape_name,dtype=np.int32).reshape(s)
+        shapes = ims_shape.astype(np.float32)
+
+        sess.run({'image': imgs, 'image_shape': shapes})
+
+    elapse = time.time() - tic
+    print('tps', elapse * 1000 / N)
+
 
 if __name__ == '__main__':
     test()
