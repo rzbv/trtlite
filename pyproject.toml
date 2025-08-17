@@ -1,0 +1,40 @@
+[build-system]
+requires = ["poetry-core>=1.6.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry]
+name = "trtlite"
+version = "0.1.0"
+description = "PyTorch-style TensorRT wrapper with C++ plugin support"
+authors = ["hanfengrzb@gmail.com"]
+license = "Apache-2.0"
+readme = "README.md"
+homepage = "https://github.com/rzbv/trtlite"
+repository = "https://github.com/rzbv/trtlite"
+keywords = ["TensorRT", "PyTorch", "Deep Learning", "Inference"]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+numpy = "1.23.5"
+absl-py = "2.3.1"
+pycuda = "2024.1"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^7.3"
+mypy = "^1.5"
+
+[tool.poetry.scripts]
+trtlite = "trtlite.cli:main"
+
+[tool.ruff]
+line-length = 88
+lint.select = ["E", "F", "I"]
+lint.ignore = ["F401"] # Allow unused imports with noqa comments
+
+[tool.yapf]
+based_on_style = "pep8"
+column_limit = 88
+indent_width = 4
+continuation_indent_width = 4
+split_before_named_assigns = true
+split_before_logical_operator = true
