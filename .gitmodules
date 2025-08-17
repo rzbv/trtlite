@@ -1,0 +1,3 @@
+[submodule "plugins/src/third_party/protobuf"]
+	path = plugins/src/third_party/protobuf
+	url = https://github.com/protocolbuffers/protobuf.git
